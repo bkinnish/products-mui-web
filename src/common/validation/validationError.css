@@ -1,0 +1,7 @@
+.validationError {
+  color: #f05a00;
+  display: block;
+  position: relative;
+  margin-top: 1px;
+  margin-bottom: 10px;
+}

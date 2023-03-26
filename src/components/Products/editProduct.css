@@ -1,0 +1,31 @@
+
+.editProductPage {
+    margin-top: 20px;
+    margin-left: 50px;
+}
+
+.productLabel {
+    display: block;
+    margin-top: 10px;
+}
+
+.productInputElement {
+    transition: all 0.25s ease-in-out;
+    border: 1px solid;
+    border-radius: 5px;
+    display: block;
+    margin-top: 3px;
+    outline: none;
+    padding-left: 5px;
+}
+
+.productInputElement:focus {
+    border: 1px solid rgba(81, 203, 238, 1);
+    box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+    display: block;
+    margin-top: 3px;
+}
+
+.productButton {
+    margin-right: 10px;
+}

@@ -1,0 +1,6 @@
+{
+    "url": {
+        "products": "https://products.azurewebsites.net/",
+        "authorisation": "https://products.auth.azurewebsites.net/"
+    }
+}

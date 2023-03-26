@@ -1,0 +1,29 @@
+
+.productsPage {
+    margin-top: 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.productsButtonWrapper { 
+    display: flex;
+    margin-right: 6rem;
+}
+
+.addProductButton {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: auto;
+}
+
+.productSortHeader { 
+    cursor: pointer;
+}
+
+.tableRecordButtonWrapper {
+    max-width: 50px;
+}
+
+.tableRecordButton {
+    margin-right: 10px;
+}
