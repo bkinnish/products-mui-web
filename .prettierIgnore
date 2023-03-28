@@ -1,0 +1,7 @@
+node_modules
+package.json
+README.md
+
+# Ignore artifacts:
+build
+coverage

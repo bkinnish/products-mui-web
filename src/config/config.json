@@ -1,6 +1,6 @@
 {
     "url": {
-        "products": "https://localhost:5001/",
+        "productsApi": "https://localhost:5001/",
         "authorisation": "https://localhost:5005/"
     }
 }

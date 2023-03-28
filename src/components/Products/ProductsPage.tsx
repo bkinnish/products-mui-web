@@ -61,16 +61,18 @@ const ProductPage: FunctionComponent = () => {
           setCurrentPage(response?.currentPage || 1);
           setMaxPagesCount(response?.totalPages || 0);
           setErrorMessage(undefined);
+          if (response && (response as any)?.status !== 499) {
+            setIsLoading(false);
+          }
         },
         (err) => {
           setErrorMessage(err.message);
+          setIsLoading(false);
         }
       )
       .catch((err) => {
         // Handle network errors.
         setErrorMessage(err.message || "Network Connect Timeout Error");
-      })
-      .finally(() => {
         setIsLoading(false);
       });
   };

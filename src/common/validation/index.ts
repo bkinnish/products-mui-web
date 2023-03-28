@@ -1,3 +1,3 @@
-import ValidationError from './ValidationError'
+import ValidationError from "./ValidationError";
 
 export default ValidationError;
