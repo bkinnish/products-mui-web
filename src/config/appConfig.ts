@@ -1,4 +1,4 @@
-import { isNullOrUndefined } from "../common/utils/valueCheck";
+import { isNullOrUndefined } from "../common/utils/isNullOrUndefined";
 
 // Called once at startup
 export const loadConfig = async () => {

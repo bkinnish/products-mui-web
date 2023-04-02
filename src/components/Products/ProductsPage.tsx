@@ -1,5 +1,4 @@
 import React, { FunctionComponent, useState, useEffect } from "react";
-import Table from "react-bootstrap/Table";
 import Pagination from "react-bootstrap/Pagination";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -14,6 +13,19 @@ import Product from "../../api/ProductApi/product";
 import { ProductSortOrder } from "../../api/ProductApi/productSortOrder";
 import { formatCurrency } from "../../common/utils/numbers";
 import LoadingAndErrorMessages from "../../common/Messages/LoadingAndErrorMessages";
+import InfiniteScrollTable, {
+  CellAlignment,
+  ColumnMetadata,
+} from "../../common/table/useInfiniteScrollTable";
+import OutlinedButton from "../../common/buttons/OutLinedButton";
+import ContainedButton from "../../common/buttons/ContainedButton";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SearchIcon from "@mui/icons-material/Search";
 import "./productsPage.css";
 
 const ProductPage: FunctionComponent = () => {
@@ -21,6 +33,10 @@ const ProductPage: FunctionComponent = () => {
     null
   );
   const [productData, setProductData] = useState<Product[]>([]);
+  const [search, setSearch] = useState<string>("");
+  const filteredProductData = productData?.filter((product) =>
+    product?.name.toLowerCase().includes(search)
+  );
   const [maxPagesCount, setMaxPagesCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<ProductSortOrder>(
@@ -28,7 +44,7 @@ const ProductPage: FunctionComponent = () => {
   );
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
-  const [deleteProductId, setDeleteProductId] = useState<number>(0);
+  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
@@ -88,10 +104,14 @@ const ProductPage: FunctionComponent = () => {
     loadData(pageNo, sortOrder, sortAsc);
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+  };
+
   const handleAddProduct = () => {
     // The default selection is fruit.
     setEditingProduct({
-      id: 0,
+      id: "",
       name: "",
       price: 0.0,
       type: "fruit",
@@ -114,21 +134,21 @@ const ProductPage: FunctionComponent = () => {
     setEditingProduct(null);
   };
 
-  const handleDeleteDialogShow = (id: number) => {
+  const handleDeleteDialogShow = (id: string) => {
     setShowDeleteDialog(true);
     setDeleteProductId(id);
   };
   const handleDeleteDialogClose = () => {
     setShowDeleteDialog(false);
-    setDeleteProductId(0);
+    setDeleteProductId(null);
   };
 
   const handleDeleteProduct = () => {
-    if (deleteProductId !== 0) {
+    if (deleteProductId !== null && deleteProductId !== "") {
       deleteProduct(deleteProductId)
         .then((respone) => {
           setShowDeleteDialog(false);
-          setDeleteProductId(0);
+          setDeleteProductId(null);
           loadData(currentPage, sortOrder, sortAsc);
         })
         .catch((err) => {
@@ -137,7 +157,7 @@ const ProductPage: FunctionComponent = () => {
     }
   };
 
-  const lookupProductName = (id: number): string => {
+  const lookupProductName = (id: string): string => {
     const product = productData.find((p) => p.id === deleteProductId);
     if (product !== undefined) {
       return product.name;
@@ -160,6 +180,78 @@ const ProductPage: FunctionComponent = () => {
     );
   }
 
+  let tableColumnMetadata: ColumnMetadata<Product>[] = [
+    {
+      propertyName: "id",
+      heading: "Id",
+      align: CellAlignment.Right,
+      padding: true,
+      width: 60,
+    },
+    {
+      propertyName: "name",
+      heading: "Product",
+      align: CellAlignment.Left,
+      padding: false,
+    },
+    {
+      propertyName: "price",
+      heading: "Price",
+      align: CellAlignment.Left,
+      padding: false,
+      isCustomColumn: true,
+      customComponent: (data: Product) => (
+        <div>{formatCurrency(data.price)}</div>
+      ),
+    },
+    {
+      propertyName: "type",
+      heading: "Type",
+      align: CellAlignment.Left,
+      padding: false,
+    },
+    {
+      propertyName: "active",
+      heading: "Is Active",
+      align: CellAlignment.Left,
+      padding: false,
+      isCustomColumn: true,
+      customComponent: (data: Product) => (
+        <div>{data.active ? "Yes" : "No"}</div>
+      ),
+    },
+    {
+      propertyName: "id",
+      heading: "Actions",
+      align: CellAlignment.Center,
+      padding: true,
+      width: 100,
+      isSortColumn: false,
+      isCustomColumn: true,
+      customComponent: (data: Product) => (
+        <Stack direction="row" spacing={1}>
+          <OutlinedButton
+            size="small"
+            startIcon={<EditIcon />}
+            onClick={() => handleEditProduct(data)}
+          >
+            Edit
+          </OutlinedButton>
+          <OutlinedButton
+            size="small"
+            startIcon={<DeleteIcon />}
+            disabled={false}
+            onClick={() => handleDeleteDialogShow(data.id)}
+          >
+            Delete
+          </OutlinedButton>
+        </Stack>
+      ),
+    },
+  ];
+
+  const ProductsTable = InfiniteScrollTable<Product>;
+
   const isDataLoaded = !isLoading && !errorMessage && productData?.length > 0;
 
   return (
@@ -171,12 +263,6 @@ const ProductPage: FunctionComponent = () => {
         loadingErrorMessage={errorMessage}
         isAnyData={isDataLoaded}
       />
-      {/* {isLoading && <div className="spinner-border m-5" role="status" />}
-      {errorMessage && (
-        <div className="alert alert-danger alert-dismissible fade show">
-          <strong>Error</strong> {errorMessage}
-        </div>
-      )} */}
       {!isLoading && !errorMessage && editingProduct !== null && (
         <EditProduct
           initialProduct={editingProduct}
@@ -184,82 +270,51 @@ const ProductPage: FunctionComponent = () => {
           onCancelChanges={handleCancelChanges}
         />
       )}
+
       {isDataLoaded && editingProduct === null && (
-        <React.Fragment>
+        <div style={{ paddingLeft: 10, paddingRight: 10, maxWidth: 1100 }}>
+          <Stack
+            direction="row"
+            justifyContent="flex-start"
+            alignItems="centre"
+            spacing={2}
+            style={{ marginLeft: 10, maxWidth: 1000, marginRight: 50 }}
+          >
+            <TextField
+              label="search..."
+              onChange={handleSearch}
+              size="small"
+              inputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton>
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            ></TextField>
+          </Stack>
           <div className="productsButtonWrapper">
             <div className="addProductButton">
-              <Button variant="success" onClick={() => handleAddProduct()}>
+              <ContainedButton onClick={() => handleAddProduct()}>
                 Add Product
-              </Button>
+              </ContainedButton>
             </div>
           </div>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th
-                  className="productSortHeader"
-                  onClick={() => handleSortProducts(ProductSortOrder.name)}
-                >
-                  Name
-                </th>
-                <th
-                  className="productSortHeader"
-                  onClick={() => handleSortProducts(ProductSortOrder.price)}
-                >
-                  Price
-                </th>
-                <th
-                  className="productSortHeader"
-                  onClick={() => handleSortProducts(ProductSortOrder.type)}
-                >
-                  Type
-                </th>
-                <th
-                  className="productSortHeader"
-                  onClick={() => handleSortProducts(ProductSortOrder.active)}
-                >
-                  Active
-                </th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {productData.map((product) => (
-                <tr key={product.id}>
-                  <td>{product.id}</td>
-                  <td>{product.name}</td>
-                  <td>{formatCurrency(product.price)}</td>
-                  <td>{product.type}</td>
-                  <td>{product.active ? "Yes" : "No"}</td>
-                  <td className="tableRecordButtonWrapper">
-                    <Button
-                      variant="success"
-                      className="tableRecordButton"
-                      onClick={() => handleEditProduct(product)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="danger"
-                      className="tableRecordButton"
-                      onClick={() => handleDeleteDialogShow(product.id)}
-                    >
-                      Delete
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-          <Pagination>{pagingItems}</Pagination>
-        </React.Fragment>
+          <ProductsTable
+            tableHeading="Products"
+            data={filteredProductData ?? []}
+            columnMetadata={tableColumnMetadata}
+            showSelectedColumn={false}
+          ></ProductsTable>
+        </div>
       )}
 
       <Modal show={showDeleteDialog} onHide={handleDeleteDialogClose}>
         <Modal.Header closeButton>
           <Modal.Title>
-            Delete Product ({lookupProductName(deleteProductId)})
+            Delete Product ({lookupProductName(deleteProductId as string)})
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>Are you sure you want to delete the product?</Modal.Body>

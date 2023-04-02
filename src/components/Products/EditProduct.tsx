@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import "./editProduct.css";
 import ValidationError from "../../common/validation";
-import { isNullOrUndefined } from "../../common/utils/valueCheck";
+import { isNullOrUndefined } from "../../common/utils/isNullOrUndefined";
 
 interface EditProductProps {
   initialProduct: Product;
@@ -88,7 +88,7 @@ const EditProduct: FunctionComponent<EditProductProps> = ({
   return (
     <div className="editProductPage">
       <form onSubmit={(e) => handleSaveChanges(e)}>
-        <h2>{product.id === 0 ? "Add Product" : "Edit Product"}</h2>
+        <h2>{product.id === null ? "Add Product" : "Edit Product"}</h2>
         <br />
         <label htmlFor="productName" className="productLabel">
           Product Name:

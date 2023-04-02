@@ -2,6 +2,7 @@ import { ProductSortOrder } from "./productSortOrder";
 import Product from "./product";
 import ProductResponse from "./productResponse";
 import { getProductsApiUrl } from "../../config/appConfig";
+import { isNullOrUndefined } from "../../common/utils/isNullOrUndefined";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/AbortController
 let controller: AbortController;
@@ -77,7 +78,7 @@ export const saveProduct = (product: Product) => {
     controller.abort();
     console.log("fetch aborted");
   }
-  if (product.id > 0) {
+  if (!isNullOrUndefined(product.id)) {
     return fetch(`${getProductsApiUrl()}api/product/${product.id}`, {
       method: "PUT",
       headers: {
@@ -107,7 +108,7 @@ export const saveProduct = (product: Product) => {
   }
 };
 
-export const deleteProduct = (id: number) => {
+export const deleteProduct = (id: string) => {
   if (controller) {
     controller.abort();
     console.log("fetch aborted");
