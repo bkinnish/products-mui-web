@@ -284,7 +284,7 @@ const ProductPage: FunctionComponent = () => {
               label="search..."
               onChange={handleSearch}
               size="small"
-              inputProps={{
+              InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton>

@@ -138,6 +138,7 @@ function EnhancedTableHeader<Tdata>(props: EnhancedTableHeaderProps<Tdata>) {
     <TableRow>
       {props.showSelectedColumn && (
         <TableCell
+          key="selected"
           padding="checkbox"
           style={{ width: 20, background: "white" }}
         >
@@ -155,7 +156,7 @@ function EnhancedTableHeader<Tdata>(props: EnhancedTableHeaderProps<Tdata>) {
       {props.columnMetadata.map((col) => (
         <TableCell
           style={{ width: col.width, background: "white" }}
-          key={col.propertyName}
+          key={col.heading ?? col.propertyName} // Needs to be unique.
           align={
             col.align === CellAlignment.Left
               ? "left"
@@ -360,6 +361,7 @@ function InfiniteScrollTable<Tdata extends idRequired>(
               <>
                 {props.showSelectedColumn && (
                   <TableCell
+                    key={row.id.toString() + "selected"}
                     padding="checkbox"
                     style={{ width: 20 }}
                     scope="row"
@@ -383,6 +385,7 @@ function InfiniteScrollTable<Tdata extends idRequired>(
                       : (row[col.propertyName] as any);
                   return (
                     <TableCell
+                      key={row.id.toString() + col.heading} // Needs to be unique.
                       padding={col.padding ? "normal" : "none"}
                       align={getCellAlignment(col.align)}
                       style={{ width: col.width }}
