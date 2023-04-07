@@ -14,10 +14,15 @@ const LoadingAndErrorMessages: FunctionComponent<
 > = ({ isLoading, loadingErrorMessage, isAnyData, noDataMessage }) => {
   if (isLoading) {
     return (
-      <div
-        className={clsx("loadingErrorMessagesAlignment", "spinner-border m-5")}
-        role="status"
-      />
+      <div className="d-flex justify-content-center">
+        <div
+          className={clsx(
+            "loadingErrorMessagesAlignment",
+            "spinner-border m-5"
+          )}
+          role="status"
+        />
+      </div>
     );
   }
   if (loadingErrorMessage) {

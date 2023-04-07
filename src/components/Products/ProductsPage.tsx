@@ -311,6 +311,8 @@ const ProductPage: FunctionComponent = () => {
         </div>
       )}
 
+      {/* // TODO: Move Delete dialog down */}
+
       <Modal show={showDeleteDialog} onHide={handleDeleteDialogClose}>
         <Modal.Header closeButton>
           <Modal.Title>

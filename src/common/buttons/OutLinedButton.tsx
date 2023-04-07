@@ -5,7 +5,7 @@ export interface ButtonProps {
   id?: string;
   children: React.ReactNode;
   disabled?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
   style?: React.CSSProperties;
   /**
