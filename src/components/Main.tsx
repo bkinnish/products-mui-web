@@ -1,7 +1,7 @@
 import React from "react";
 import MiniDrawer, { ItemGroup } from "../common/drawer/MiniDrawer";
-// import BusinessIcon from "@mui/icons-material/Business";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import BrandingWatermarkIcon from "@mui/icons-material/BrandingWatermark";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import InfoIcon from "@mui/icons-material/Info";
 import styles from "./Main.module.scss";
@@ -17,6 +17,11 @@ export function Main() {
           text: "Products",
           icon: <InventoryIcon titleAccess={"Products"} />,
           navigateTo: "products",
+        },
+        {
+          text: "Brands",
+          icon: <BrandingWatermarkIcon titleAccess={"Brands"} />,
+          navigateTo: "brands",
         },
       ],
     },

@@ -2,16 +2,10 @@ import React, { FunctionComponent, useState, useEffect } from "react";
 import Pagination from "react-bootstrap/Pagination";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import EditProduct from "./EditProduct";
-import {
-  getProductApiVersion,
-  getProducts,
-  saveProduct,
-  deleteProduct,
-} from "../../api/ProductApi/productApi";
-import Product from "../../api/ProductApi/product";
-import { ProductSortOrder } from "../../api/ProductApi/productSortOrder";
-import { formatCurrency } from "../../common/utils/numbers";
+import EditBrand from "./EditBrand";
+import { getBrands, saveBrand, deleteBrand } from "../../api/BrandApi/brandApi";
+import Brand from "../../api/BrandApi/brand";
+import { BrandSortOrder } from "../../api/BrandApi/brandSortOrder";
 import LoadingAndErrorMessages from "../../common/Messages/LoadingAndErrorMessages";
 import InfiniteScrollTable, {
   CellAlignment,
@@ -26,54 +20,42 @@ import Stack from "@mui/material/Stack";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SearchIcon from "@mui/icons-material/Search";
-import "./productsPage.css";
+import styles from "./Brands.module.scss";
 
-const ProductPage: FunctionComponent = () => {
-  const [productApiVersion, setProductApiVersion] = useState<string | null>(
-    null
-  );
-  const [productData, setProductData] = useState<Product[]>([]);
+const Brands: FunctionComponent = () => {
+  const [brandData, setBrandData] = useState<Brand[]>([]);
   const [search, setSearch] = useState<string>("");
-  const filteredProductData = productData?.filter((product) =>
-    product?.name.toLowerCase().includes(search)
+  const filteredBrandData = brandData?.filter((brand) =>
+    brand?.name.toLowerCase().includes(search)
   );
   const [maxPagesCount, setMaxPagesCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [sortOrder, setSortOrder] = useState<ProductSortOrder>(
-    ProductSortOrder.name
+  const [sortOrder, setSortOrder] = useState<BrandSortOrder>(
+    BrandSortOrder.name
   );
   const [sortAsc, setSortAsc] = useState<boolean>(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
-  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deleteBrandId, setDeleteBrandId] = useState<string | null>(null);
+  const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
     undefined
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (process.env.NODE_ENV !== "production") {
-      loadVersion();
-    }
     loadData(1);
   }, []);
 
-  const loadVersion = () => {
-    getProductApiVersion().then((response) => {
-      setProductApiVersion(response);
-    });
-  };
-
   const loadData = (
     pageNo: number,
-    sortOrder: ProductSortOrder = ProductSortOrder.name,
+    sortOrder: BrandSortOrder = BrandSortOrder.name,
     sortAsc: boolean = true
   ) => {
     setIsLoading(true);
-    getProducts(pageNo, sortOrder, sortAsc)
+    getBrands(pageNo, sortOrder, sortAsc)
       .then(
         (response) => {
-          setProductData(response?.items || []);
+          setBrandData(response?.items || []);
           setCurrentPage(response?.currentPage || 1);
           setMaxPagesCount(response?.totalPages || 0);
           setErrorMessage(undefined);
@@ -93,7 +75,7 @@ const ProductPage: FunctionComponent = () => {
       });
   };
 
-  const handleSortProducts = (newSortOrder: ProductSortOrder) => {
+  const handleSortBrands = (newSortOrder: BrandSortOrder) => {
     setSortOrder(newSortOrder);
     var newSortAsc = sortOrder === newSortOrder ? !sortAsc : sortAsc;
     setSortAsc(newSortAsc);
@@ -108,47 +90,44 @@ const ProductPage: FunctionComponent = () => {
     setSearch(e.target.value);
   };
 
-  const handleAddProduct = () => {
-    // The default selection is fruit.
-    setEditingProduct({
+  const handleAddBrand = () => {
+    setEditingBrand({
       id: "",
       name: "",
-      price: 0.0,
-      type: "fruit",
       active: true,
     });
   };
 
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct({ ...product });
+  const handleEditBrand = (brand: Brand) => {
+    setEditingBrand({ ...brand });
   };
 
-  const handleSaveChanges = (product: Product) => {
-    saveProduct(product).then((response) => {
-      setEditingProduct(null);
+  const handleSaveChanges = (brand: Brand) => {
+    saveBrand(brand).then((response) => {
+      setEditingBrand(null);
       loadData(currentPage, sortOrder, sortAsc);
     });
   };
 
   const handleCancelChanges = () => {
-    setEditingProduct(null);
+    setEditingBrand(null);
   };
 
   const handleDeleteDialogShow = (id: string) => {
     setShowDeleteDialog(true);
-    setDeleteProductId(id);
+    setDeleteBrandId(id);
   };
   const handleDeleteDialogClose = () => {
     setShowDeleteDialog(false);
-    setDeleteProductId(null);
+    setDeleteBrandId(null);
   };
 
-  const handleDeleteProduct = () => {
-    if (deleteProductId !== null && deleteProductId !== "") {
-      deleteProduct(deleteProductId)
+  const handleDeleteBrand = () => {
+    if (deleteBrandId !== null && deleteBrandId !== "") {
+      deleteBrand(deleteBrandId)
         .then((respone) => {
           setShowDeleteDialog(false);
-          setDeleteProductId(null);
+          setDeleteBrandId(null);
           loadData(currentPage, sortOrder, sortAsc);
         })
         .catch((err) => {
@@ -157,10 +136,10 @@ const ProductPage: FunctionComponent = () => {
     }
   };
 
-  const lookupProductName = (id: string): string => {
-    const product = productData.find((p) => p.id === deleteProductId);
-    if (product !== undefined) {
-      return product.name;
+  const lookupBrandName = (id: string): string => {
+    const brand = brandData.find((p) => p.id === deleteBrandId);
+    if (brand !== undefined) {
+      return brand.name;
     } else {
       return "";
     }
@@ -180,7 +159,7 @@ const ProductPage: FunctionComponent = () => {
     );
   }
 
-  let tableColumnMetadata: ColumnMetadata<Product>[] = [
+  let tableColumnMetadata: ColumnMetadata<Brand>[] = [
     {
       propertyName: "id",
       heading: "Id",
@@ -190,23 +169,7 @@ const ProductPage: FunctionComponent = () => {
     },
     {
       propertyName: "name",
-      heading: "Product",
-      align: CellAlignment.Left,
-      padding: false,
-    },
-    {
-      propertyName: "price",
-      heading: "Price",
-      align: CellAlignment.Left,
-      padding: false,
-      isCustomColumn: true,
-      customComponent: (data: Product) => (
-        <div>{formatCurrency(data.price)}</div>
-      ),
-    },
-    {
-      propertyName: "type",
-      heading: "Type",
+      heading: "Brand",
       align: CellAlignment.Left,
       padding: false,
     },
@@ -216,9 +179,7 @@ const ProductPage: FunctionComponent = () => {
       align: CellAlignment.Left,
       padding: false,
       isCustomColumn: true,
-      customComponent: (data: Product) => (
-        <div>{data.active ? "Yes" : "No"}</div>
-      ),
+      customComponent: (data: Brand) => <div>{data.active ? "Yes" : "No"}</div>,
     },
     {
       propertyName: "id",
@@ -228,12 +189,12 @@ const ProductPage: FunctionComponent = () => {
       width: 100,
       isSortColumn: false,
       isCustomColumn: true,
-      customComponent: (data: Product) => (
+      customComponent: (data: Brand) => (
         <Stack direction="row" spacing={1}>
           <OutlinedButton
             size="small"
             startIcon={<EditIcon />}
-            onClick={() => handleEditProduct(data)}
+            onClick={() => handleEditBrand(data)}
           >
             Edit
           </OutlinedButton>
@@ -250,28 +211,36 @@ const ProductPage: FunctionComponent = () => {
     },
   ];
 
-  const ProductsTable = InfiniteScrollTable<Product>;
+  const BrandsTable = InfiniteScrollTable<Brand>;
 
-  const isDataLoaded = !isLoading && !errorMessage && productData?.length > 0;
+  const isDataLoaded = !isLoading && !errorMessage && brandData?.length > 0;
 
   return (
-    <div className="productPage">
-      <h2>Retail Products</h2>
-      {productApiVersion && <div>Product: {productApiVersion}</div>}
+    <div className={styles.brandsPage}>
+      <h2>Retail Brands</h2>
+
+      <div className={styles.brandsButtonWrapper}>
+        <div className={styles.addBrandButton}>
+          <ContainedButton onClick={() => handleAddBrand()}>
+            Add Brand
+          </ContainedButton>
+        </div>
+      </div>
+
       <LoadingAndErrorMessages
         isLoading={isLoading}
         loadingErrorMessage={errorMessage}
         isAnyData={isDataLoaded}
       />
-      {!isLoading && !errorMessage && editingProduct !== null && (
-        <EditProduct
-          initialProduct={editingProduct}
+      {!isLoading && !errorMessage && editingBrand !== null && (
+        <EditBrand
+          initialBrand={editingBrand}
           onSaveChanges={handleSaveChanges}
           onCancelChanges={handleCancelChanges}
         />
       )}
 
-      {isDataLoaded && editingProduct === null && (
+      {isDataLoaded && editingBrand === null && (
         <div style={{ paddingLeft: 10, paddingRight: 10, maxWidth: 1100 }}>
           <Stack
             direction="row"
@@ -295,36 +264,29 @@ const ProductPage: FunctionComponent = () => {
               }}
             ></TextField>
           </Stack>
-          <div className="productsButtonWrapper">
-            <div className="addProductButton">
-              <ContainedButton onClick={() => handleAddProduct()}>
-                Add Product
-              </ContainedButton>
-            </div>
-          </div>
-          <ProductsTable
-            tableHeading="Products"
-            data={filteredProductData ?? []}
+          <BrandsTable
+            tableHeading="Brands"
+            data={filteredBrandData ?? []}
             columnMetadata={tableColumnMetadata}
             showSelectedColumn={false}
-          ></ProductsTable>
+          ></BrandsTable>
         </div>
       )}
 
       <Modal
         show={showDeleteDialog}
         onHide={handleDeleteDialogClose}
-        aria-labelledby="contained-modal-delete-product"
+        aria-labelledby="contained-modal-delete-brand"
         centered
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            Delete Product ({lookupProductName(deleteProductId as string)})
+            Delete Product ({lookupBrandName(deleteBrandId as string)})
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>Are you sure you want to delete the product?</Modal.Body>
+        <Modal.Body>Are you sure you want to delete the brand?</Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleDeleteProduct}>
+          <Button variant="primary" onClick={handleDeleteBrand}>
             Delete
           </Button>
           <Button variant="secondary" onClick={handleDeleteDialogClose}>
@@ -336,4 +298,4 @@ const ProductPage: FunctionComponent = () => {
   );
 };
 
-export default ProductPage;
+export default Brands;

@@ -27,6 +27,6 @@ export const appConfig = (): ConfigSchema => {
   };
 };
 
-export const getProductsApiUrl = () => appConfig()?.url.productsApi;
+export const getBaseApiUrl = () => appConfig()?.url.productsApi;
 
-export const isConfigValid = () => !isNullOrUndefined(getProductsApiUrl());
+export const isConfigValid = () => !isNullOrUndefined(getBaseApiUrl());

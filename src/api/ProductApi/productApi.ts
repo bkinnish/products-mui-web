@@ -1,7 +1,8 @@
 import { ProductSortOrder } from "./productSortOrder";
 import Product from "./product";
+import CreateProduct from "./createProduct";
 import ProductResponse from "./productResponse";
-import { getProductsApiUrl } from "../../config/appConfig";
+import { getBaseApiUrl } from "../../config/appConfig";
 import { isNullOrUndefined } from "../../common/utils/isNullOrUndefined";
 
 // https://developer.mozilla.org/en-US/docs/Web/API/AbortController
@@ -19,7 +20,7 @@ export const getProducts = (
   controller = new AbortController();
 
   return fetch(
-    `${getProductsApiUrl()}api/product?page=${pageNo}&limit=10&sortorder=${sortOrder}&sortAsc=${sortAsc}`,
+    `${getBaseApiUrl()}api/product?page=${pageNo}&limit=10&sortorder=${sortOrder}&sortAsc=${sortAsc}`,
     {
       signal: controller.signal,
       method: "GET",
@@ -78,8 +79,8 @@ export const saveProduct = (product: Product) => {
     controller.abort();
     console.log("fetch aborted");
   }
-  if (!isNullOrUndefined(product.id)) {
-    return fetch(`${getProductsApiUrl()}api/product/${product.id}`, {
+  if (!isNullOrUndefined(product.id) && product.id > "") {
+    return fetch(`${getBaseApiUrl()}api/product/${product.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -92,13 +93,19 @@ export const saveProduct = (product: Product) => {
       return;
     });
   } else {
-    return fetch(`${getProductsApiUrl()}api/product`, {
+    const createProduct: CreateProduct = {
+      name: product.name,
+      price: product.price,
+      type: product.type,
+      active: product.active,
+    };
+    return fetch(`${getBaseApiUrl()}api/product`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
       },
-      body: JSON.stringify(product),
+      body: JSON.stringify(createProduct),
     }).then((response) => {
       if (response.status >= 400) {
         throw Error(`Issue adding product: ${product.name}`);
@@ -114,7 +121,7 @@ export const deleteProduct = (id: string) => {
     console.log("fetch aborted");
   }
 
-  return fetch(`${getProductsApiUrl()}api/product/${id}`, {
+  return fetch(`${getBaseApiUrl()}api/product/${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -128,7 +135,7 @@ export const deleteProduct = (id: string) => {
 };
 
 export const getProductApiVersion = () => {
-  return fetch(`${getProductsApiUrl()}api/product/version`, {
+  return fetch(`${getBaseApiUrl()}api/product/version`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",

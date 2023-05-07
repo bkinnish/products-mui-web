@@ -1,6 +1,7 @@
 // https://reactrouter.com/en/main/start/tutorial
 import { createBrowserRouter } from "react-router-dom";
 import ProductList from "./components/Products/ProductsPage";
+import Brands from "./components/Brands";
 import { Main } from "./components/Main";
 import About from "./components/about";
 import NotFound from "./common/Error/NotFound";
@@ -14,6 +15,10 @@ export const routes = createBrowserRouter([
       {
         path: "products",
         element: <ProductList />,
+      },
+      {
+        path: "brands",
+        element: <Brands />,
       },
       {
         path: "about",
